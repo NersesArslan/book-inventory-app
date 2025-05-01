@@ -1,0 +1,15 @@
+{%extends 'layout.html'%} {%block body %} {% for entry in entries %}
+<div class="book-info">
+  <p>Title: {{entry.title}}</p>
+  <p>Author: {{entry.author}}</p>
+  <form
+    action="{{ url_for('delete_entry', entry_id=entry.id) }}"
+    method="post"
+    style="display: inline"
+  >
+    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+  </form>
+</div>
+{% endfor %}
+<a href="/">Back to form</a>
+{% endblock%}
