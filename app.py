@@ -1,8 +1,16 @@
+
+from models.book import db, Book
 from flask import Flask, render_template, request, redirect, url_for
 import uuid
-app = Flask(__name__)
 
-entries = []
+app = Flask(__name__)
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg://nersesarslanian:J0shua@18!@localhost:5432/book_inventory"
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+db.init_app(app)
+
+with app.app_context():
+    db.create_all()
 
 
 @app.route("/")
