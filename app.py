@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for
 import uuid
 
 app = Flask(__name__)
-SQLALCHEMY_DATABASE_URI = "postgresql+psycopg://nersesarslanian:J0shua@18!@localhost:5432/book_inventory"
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg://nersesarslanian:somepassword@localhost:5432/book_inventory"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 db.init_app(app)
@@ -22,19 +22,22 @@ def hello_world():
 def submit_form():
     title = request.form.get('title')
     author = request.form.get('author')
-    entry_id = str(uuid.uuid4())
-    entries.append({
-        'id': entry_id,
-        'title': title,
-        'author': author
-    })
+    genre = request.form.get('genre')
+    stock = request.form.get('stock', type=int)
+
+    new_book = Book(title=title, author=author, genre=genre, stock=stock)
+    db.session.add(new_book)
+    db.session.commit()
 
     return redirect(url_for('entries_page'))
 
 
 @app.route('/entries')
 def entries_page():
-    return render_template('entries.html', entries=entries)
+    genres = db.session.query(Book.genre).distinct()
+    books_by_genre = {genre[0]: Book.query.filter_by(
+        genre=genre[0]).all() for genre in genres}
+    return render_template('entries.html', books_by_genre=books_by_genre)
 
 
 @app.route('/delete/<entry_id>', methods=['POST'])

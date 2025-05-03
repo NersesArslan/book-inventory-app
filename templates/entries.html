@@ -1,15 +1,14 @@
-{%extends 'layout.html'%} {%block body %} {% for entry in entries %}
-<div class="book-info">
-  <p>Title: {{entry.title}}</p>
-  <p>Author: {{entry.author}}</p>
-  <form
-    action="{{ url_for('delete_entry', entry_id=entry.id) }}"
-    method="post"
-    style="display: inline"
-  >
-    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-  </form>
-</div>
+{%extends 'layout.html'%} {%block body %} {% for genre, books in
+books_by_genre.items() %}
+<h2>{{ genre }}</h2>
+<ul class="list-group mb-4">
+  {% for book in books %}
+  <li class="list-group-item">
+    <strong>{{ book.title }}</strong> by {{ book.author }} – Stock: {{
+    book.stock }}
+  </li>
+  {% endfor %}
+</ul>
 {% endfor %}
 <a href="/">Back to form</a>
 {% endblock%}
