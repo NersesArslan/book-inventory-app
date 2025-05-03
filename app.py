@@ -44,7 +44,8 @@ def entries_page():
 @app.route('/genre/<int:genre_id>')
 def view_genre(genre_id):
     genre = Genre.query.get_or_404(genre_id)
-    return render_template('genre_books.html', genre=genre)
+    books = Book.query.filter_by(genre_id=genre.id).all()
+    return render_template('genre_books.html', genre=genre, books=books)
 
 
 @app.route('/genre/add', methods=['POST'])
@@ -55,6 +56,20 @@ def add_genre():
         db.session.add(new_genre)
         db.session.commit()
     return redirect(url_for('index'))
+
+
+@app.route('/genre/<int:genre_id>/add_book', methods=['POST'])
+def add_book_to_genre(genre_id):
+    genre = Genre.query.get_or_404(genre_id)
+    title = request.form['title']
+    author = request.form['author']
+    stock = int(request.form.get('stock', 1))
+
+    new_book = Book(title=title, author=author, genre_id=genre.id, stock=stock)
+    db.session.add(new_book)
+    db.session.commit()
+
+    return redirect(url_for('view_genre', genre_id=genre.id))
 
 
 @app.route('/genre/<int:genre_id>/edit', methods=['GET', 'POST'])

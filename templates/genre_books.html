@@ -1,0 +1,24 @@
+{%extends 'layout.html'%} {%block body %}
+<h1>{{ genre.name }}</h1>
+
+<a href="{{ url_for('edit_genre', genre_id=genre.id) }}">Edit Genre</a>
+
+<h2>Books in this genre:</h2>
+<ul>
+  {% for book in books %}
+  <li>{{ book.title }} by {{ book.author }} (Stock: {{ book.stock }})</li>
+  {% endfor %}
+</ul>
+
+<h2>Add a new book</h2>
+<form
+  method="POST"
+  action="{{ url_for('add_book_to_genre', genre_id=genre.id) }}"
+>
+  <input type="text" name="title" placeholder="Title" required />
+  <input type="text" name="author" placeholder="Author" required />
+  <input type="number" name="stock" placeholder="Stock" min="0" />
+  <button type="submit">Add Book</button>
+</form>
+<a href="/">Back to form</a>
+{% endblock%}
