@@ -1,7 +1,7 @@
 
 from models.book import db, Book
 from flask import Flask, render_template, request, redirect, url_for
-import uuid
+from models.book import Genre
 
 app = Flask(__name__)
 SQLALCHEMY_DATABASE_URI = "postgresql+psycopg://nersesarslanian:somepassword@localhost:5432/book_inventory"
@@ -13,9 +13,10 @@ with app.app_context():
     db.create_all()
 
 
-@app.route("/")
-def hello_world():
-    return render_template('home.html')
+@app.route('/')
+def index():
+    genres = Genre.query.all()
+    return render_template('home.html', genres=genres)
 
 
 @app.route('/submit_form', methods=['POST'])
@@ -40,11 +41,52 @@ def entries_page():
     return render_template('entries.html', books_by_genre=books_by_genre)
 
 
-@app.route('/delete/<entry_id>', methods=['POST'])
-def delete_entry(entry_id):
-    global entries
-    entries = [entry for entry in entries if entry['id'] != entry_id]
-    return redirect(url_for('entries_page'))
+@app.route('/genre/<int:genre_id>')
+def view_genre(genre_id):
+    genre = Genre.query.get_or_404(genre_id)
+    return render_template('genre_books.html', genre=genre)
+
+
+@app.route('/genre/add', methods=['POST'])
+def add_genre():
+    name = request.form['name']
+    if name:
+        new_genre = Genre(name=name)
+        db.session.add(new_genre)
+        db.session.commit()
+    return redirect(url_for('index'))
+
+
+@app.route('/genre/<int:genre_id>/edit', methods=['GET', 'POST'])
+def edit_genre(genre_id):
+    genre = Genre.query.get_or_404(genre_id)
+    if request.method == 'POST':
+        genre.name = request.form['name']
+        db.session.commit()
+        return redirect(url_for('index'))
+    return render_template('edit_genre.html', genre=genre)
+
+
+@app.route('/genre/<int:genre_id>/delete', methods=['POST'])
+def delete_genre(genre_id):
+    genre = Genre.query.get_or_404(genre_id)
+    db.session.delete(genre)
+    db.session.commit()
+    return redirect(url_for('index'))
+
+# Book CRUD
+
+
+@app.route('/book/add', methods=['POST'])
+def add_book():
+    title = request.form['title']
+    author = request.form['author']
+    genre_id = request.form['genre_id']
+    stock = int(request.form.get('stock', 1))
+    new_book = Book(title=title, author=author, genre_id=genre_id, stock=stock)
+    db.session.add(new_book)
+    db.session.commit()
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':

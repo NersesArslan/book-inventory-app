@@ -1,23 +1,46 @@
 {%extends 'layout.html'%} {%block body %}
 
-<form action="/submit_form" method="POST" class="w-50">
-  <div class="form-group">
-    <label for="">Title</label>
-    <input type="text" class="form-control" name="title" />
-  </div>
-  <div class="form-group">
-    <label for="">Author</label>
-    <input type="text" class="form-control" name="author" />
-  </div>
-  <div class="form-group">
-    <label for="">Genre</label>
-    <input type="text" class="form-control" name="genre" />
-  </div>
-  <div class="form-group">
-    <label for="">Stock</label>
-    <input type="number" class="form-control" name="stock" min="1" />
-  </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
+<h1>Book Inventory</h1>
+
+<h2>Genres</h2>
+<ul>
+  {% for genre in genres %}
+  <li>
+    <a href="{{ url_for('view_genre', genre_id=genre.id) }}"
+      >{{ genre.name }}</a
+    >
+    <a href="{{ url_for('edit_genre', genre_id=genre.id) }}">Edit</a>
+    <form
+      action="{{ url_for('delete_genre', genre_id=genre.id) }}"
+      method="POST"
+      style="display: inline"
+    >
+      <button type="submit">Delete</button>
+    </form>
+  </li>
+  {% endfor %}
+</ul>
+
+<!-- Form to create a new genre -->
+<form action="{{ url_for('add_genre') }}" method="POST">
+  <input type="text" name="name" placeholder="New Genre" />
+  <button type="submit">Add Genre</button>
+</form>
+
+<hr />
+
+<!-- Form to create a new book -->
+<h2>Add New Book</h2>
+<form action="{{ url_for('add_book') }}" method="POST">
+  <input type="text" name="title" placeholder="Title" required />
+  <input type="text" name="author" placeholder="Author" required />
+  <input type="number" name="stock" placeholder="Stock" min="0" />
+  <select name="genre_id" required>
+    {% for genre in genres %}
+    <option value="{{ genre.id }}">{{ genre.name }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">Add Book</button>
 </form>
 
 {% endblock%}
