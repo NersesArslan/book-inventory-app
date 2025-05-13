@@ -18,7 +18,8 @@ with app.app_context():
 
 @app.route('/')
 def index():
-    genres = Genre.query.all()
+    page = request.args.get('page', 1, type=int)
+    genres = Genre.query.paginate(page=page, per_page=10)
     return render_template('home.html', genres=genres)
 
 
@@ -62,8 +63,13 @@ def add_book_to_genre(genre_id):
 def edit_genre(genre_id):
     genre = Genre.query.get_or_404(genre_id)
     if request.method == 'POST':
-        genre.name = request.form['name']
+        name = request.form['name'].strip()  # Strip whitespace
+        if not name:  # Check if the name is empty
+            flash('Genre name cannot be empty.', 'danger')
+            return render_template('edit_genre.html', genre=genre)
+        genre.name = name
         db.session.commit()
+        flash('Genre updated successfully!', 'success')
         return redirect(url_for('index'))
     return render_template('edit_genre.html', genre=genre)
 

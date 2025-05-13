@@ -1,6 +1,31 @@
 {%extends 'layout.html'%} {%block body %}
-<form method="POST">
-  <input type="text" name="name" value="{{ genre.name }}" />
-  <button type="submit">Update</button>
-</form>
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h1 class="text-center mb-4">Edit Genre</h1>
+    <form
+      method="POST"
+      action="{{ url_for('edit_genre', genre_id=genre.id) }}"
+      class="needs-validation"
+      novalidate
+    >
+      <div class="mb-3">
+        <label for="name" class="form-label">Genre Name</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="form-control"
+          value="{{ genre.name }}"
+          placeholder="Enter genre name"
+          required
+        />
+        <div class="invalid-feedback">Please provide a genre name.</div>
+      </div>
+      <div class="d-flex justify-content-between">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock%}
