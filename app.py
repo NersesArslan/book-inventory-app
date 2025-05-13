@@ -117,5 +117,13 @@ def add_book():
     return redirect(url_for('index'))
 
 
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('q', '')
+    books = Book.query.filter(Book.title.ilike(
+        f'%{query}%') | Book.author.ilike(f'%{query}%')).all()
+    return render_template('search_results.html', books=books, query=query)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
