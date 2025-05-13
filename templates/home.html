@@ -1,46 +1,64 @@
 {%extends 'layout.html'%} {%block body %}
+<div class="container my-4">
+  <h1 class="text-center mb-4">Book Inventory</h1>
 
-<h1>Book Inventory</h1>
-
-<h2>Genres</h2>
-<ul>
-  {% for genre in genres %}
-  <li>
-    <a href="{{ url_for('view_genre', genre_id=genre.id) }}"
-      >{{ genre.name }}</a
-    >
-    <a href="{{ url_for('edit_genre', genre_id=genre.id) }}">Edit</a>
-    <form
-      action="{{ url_for('delete_genre', genre_id=genre.id) }}"
-      method="POST"
-      style="display: inline"
-    >
-      <button type="submit">Delete</button>
-    </form>
-  </li>
-  {% endfor %}
-</ul>
-
-<!-- Form to create a new genre -->
-<form action="{{ url_for('add_genre') }}" method="POST">
-  <input type="text" name="name" placeholder="New Genre" />
-  <button type="submit">Add Genre</button>
-</form>
-
-<hr />
-
-<!-- Form to create a new book -->
-<h2>Add New Book</h2>
-<form action="{{ url_for('add_book') }}" method="POST">
-  <input type="text" name="title" placeholder="Title" required />
-  <input type="text" name="author" placeholder="Author" required />
-  <input type="number" name="stock" placeholder="Stock" min="0" />
-  <select name="genre_id" required>
+  <!-- List of Genres -->
+  <h2>Genres</h2>
+  <ul class="list-group mb-4">
     {% for genre in genres %}
-    <option value="{{ genre.id }}">{{ genre.name }}</option>
+    <li
+      class="list-group-item d-flex justify-content-between align-items-center"
+    >
+      <div>
+        <a
+          href="{{ url_for('view_genre', genre_name=genre.name.replace(' ', '-')) }}"
+          class="text-decoration-none"
+        >
+          {{ genre.name }}
+        </a>
+      </div>
+      <div>
+        <a
+          href="{{ url_for('edit_genre', genre_id=genre.id) }}"
+          class="btn btn-sm btn-primary"
+          >Edit</a
+        >
+        <form
+          action="{{ url_for('delete_genre', genre_id=genre.id) }}"
+          method="POST"
+          style="display: inline"
+        >
+          <button
+            type="submit"
+            class="btn btn-sm btn-danger"
+            onclick="return confirm('Are you sure you want to delete this genre?');"
+          >
+            Delete
+          </button>
+        </form>
+      </div>
+    </li>
     {% endfor %}
-  </select>
-  <button type="submit">Add Book</button>
-</form>
+  </ul>
 
+  <!-- Form to Create a New Genre -->
+  <h2 class="my-4">Add a New Genre</h2>
+  <form
+    action="{{ url_for('add_genre') }}"
+    method="POST"
+    class="needs-validation"
+    novalidate
+  >
+    <div class="mb-3">
+      <input
+        type="text"
+        name="name"
+        class="form-control"
+        placeholder="Enter new genre name"
+        required
+      />
+    </div>
+    <button type="submit" class="btn btn-success">Add Genre</button>
+  </form>
+</div>
 {% endblock%}

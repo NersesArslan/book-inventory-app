@@ -1,0 +1,15 @@
+{% extends "layout.html" %} {% block body %}
+<h2>Delete Book</h2>
+
+<p>
+  Are you sure you want to delete the book <strong>{{ book.title }}</strong> by
+  {{ book.author }}?
+</p>
+
+<form method="POST">
+  <button type="submit" style="background-color: red; color: white">
+    Yes, Delete
+  </button>
+  <a href="{{ url_for('genre_page', genre_id=book.genre_id) }}">Cancel</a>
+</form>
+{% endblock %}
