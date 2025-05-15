@@ -3,6 +3,8 @@ from models.book import db, Book
 from flask import Flask, render_template, request, flash, redirect, url_for
 from models.book import Genre
 import os
+port = int(os.getenv('PORT', 5000))  # Default to 5000 if PORT isn't set
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
@@ -123,4 +125,6 @@ def search():
 
 
 if __name__ == '__main__':
-    app.run(debug=os.getenv('FLASK_DEBUG', 'false').lower() == 'true')
+    port = int(os.getenv('PORT', 5000))  # Default to 5000 if PORT isn't set
+    app.run(host='0.0.0.0', port=port, debug=os.getenv(
+        'FLASK_DEBUG', 'false').lower() == 'true')
