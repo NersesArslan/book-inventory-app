@@ -1,13 +1,14 @@
 
 from models.book import db, Book
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, flash, redirect, url_for
 from models.book import Genre
 import os
 
 app = Flask(__name__)
-SQLALCHEMY_DATABASE_URI = "postgresql+psycopg://nersesarslanian:somepassword@localhost:5432/book_inventory"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URL', 'sqlite:///app.db'
+)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 db.init_app(app)
 
 app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
@@ -33,7 +34,7 @@ def view_genre(genre_name):
 
 @app.route('/genre/add', methods=['POST'])
 def add_genre():
-    name = request.form['name']
+    name = request.form['name'].strip()
     if name:
         new_genre = Genre(name=name)
         db.session.add(new_genre)
@@ -44,9 +45,17 @@ def add_genre():
 @app.route('/genre/<int:genre_id>/add_book', methods=['POST'])
 def add_book_to_genre(genre_id):
     genre = Genre.query.get_or_404(genre_id)
-    title = request.form['title']
-    author = request.form['author']
-    stock = int(request.form.get('stock', 1))
+    title = request.form['title'].strip()
+    author = request.form['author'].strip()
+    stock_str = request.form.get('stock', '').strip()
+    # Server-side validation for stock
+    try:
+        stock = int(stock_str)
+        if stock < 1:
+            raise ValueError
+    except ValueError:
+        flash('Stock must be a positive integer.', 'danger')
+        return redirect(url_for('view_genre', genre_name=genre.name.replace(' ', '-')))
     existing_book = Book.query.filter_by(title=title, author=author).first()
     if existing_book:
         flash(
@@ -63,8 +72,8 @@ def add_book_to_genre(genre_id):
 def edit_genre(genre_id):
     genre = Genre.query.get_or_404(genre_id)
     if request.method == 'POST':
-        name = request.form['name'].strip()  # Strip whitespace
-        if not name:  # Check if the name is empty
+        name = request.form['name'].strip()
+        if not name:
             flash('Genre name cannot be empty.', 'danger')
             return render_template('edit_genre.html', genre=genre)
         genre.name = name
@@ -88,9 +97,9 @@ def delete_genre(genre_id):
 def edit_book(book_id):
     book = Book.query.get_or_404(book_id)
     if request.method == 'POST':
-        book.title = request.form['title']
-        book.author = request.form['author']
-        book.stock = int(request.form['stock'])
+        book.title = request.form['title'].strip()
+        book.author = request.form['author'].strip()
+        book.stock = int(request.form['stock'].strip())
         db.session.commit()
         return redirect(url_for('view_genre', genre_name=book.genre.name.replace(' ', '-')))
     return render_template('edit_book.html', book=book)
@@ -105,18 +114,6 @@ def delete_book(book_id):
     return redirect(url_for('view_genre', genre_name=genre_name))
 
 
-@app.route('/book/add', methods=['POST'])
-def add_book():
-    title = request.form['title']
-    author = request.form['author']
-    genre_id = request.form['genre_id']
-    stock = int(request.form.get('stock', 1))
-    new_book = Book(title=title, author=author, genre_id=genre_id, stock=stock)
-    db.session.add(new_book)
-    db.session.commit()
-    return redirect(url_for('index'))
-
-
 @app.route('/search', methods=['GET'])
 def search():
     query = request.args.get('q', '')
@@ -126,4 +123,4 @@ def search():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=os.getenv('FLASK_DEBUG', 'false').lower() == 'true')
