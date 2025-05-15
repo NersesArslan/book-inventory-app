@@ -1,3 +1,5 @@
+This project was built as part of The Odin Project curriculum.
+
 I decided to approach it a little differently by using Flask and Bootstrap, and by incorporating tools like ChatGPT and GitHub Copilot to support the development process.
 
 While these choices technically diverge from the assignment guidelines, they were intentional. I had a clear goal in mind: to build a functional CRUD app where users can create categories (e.g. genres) and add items (books) within them. I focused on creating a clean, usable inventory system with a specific real-world use case.
